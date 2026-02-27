@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-192x192.png" />
+    
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Wealth" />
+    
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover"
+    />
+
+    <link rel="manifest" href="/manifest.json" />
+
+    <link rel="apple-touch-icon" href="/pwa-512x512.png" />
+
+    <title>My Wealth Master</title>
+    
+    <style>
+      /* 防止 iPhone 上出現長按選取文字的藍色區塊，讓它更像原生 App */
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+      }
+      body {
+        margin: 0;
+        background-color: #0a0a0a; /* 配合 App.jsx 的深色主題，防止啟動時閃白光 */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
