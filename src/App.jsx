@@ -1,6 +1,13 @@
 import React, {
   useEffect, useState, useRef, useCallback, useMemo,
 } from 'react';
+// inject spin keyframes
+if (typeof document !== 'undefined' && !document.getElementById('_spin_kf')) {
+  const s = document.createElement('style');
+  s.id = '_spin_kf';
+  s.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(s);
+}
 import { supabase } from './lib/supabaseClient';
 import {
   LogOut, Plus, RefreshCw, X, ChevronRight, Search,
@@ -858,12 +865,12 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
   }, [assets, getVal]);
 
   const Section = ({ title, children, onDelete, action }) => (
-    <div className="bg-[#111] border border-white/[0.04] rounded-[1.5rem] p-5">
-      <div className="flex items-center justify-between mb-5">
-        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{title}</p>
-        <div className="flex items-center gap-2">
+    <div style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '20px 16px', width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <p style={{ fontSize: 10, fontWeight: 900, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{title}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {action}
-          {onDelete && <button onClick={onDelete} className="p-1.5 rounded-full text-gray-700 hover:text-rose-400 hover:bg-rose-500/10 transition-all"><Trash2 size={13} /></button>}
+          {onDelete && <button onClick={onDelete} style={{ padding: 6, borderRadius: '50%', background: 'none', border: 'none', color: '#374151', cursor: 'pointer' }}><Trash2 size={13} /></button>}
         </div>
       </div>
       {children}
@@ -873,7 +880,7 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
   const lastSnapshot = snapshotData.length > 0 ? snapshotData[snapshotData.length - 1].date : null;
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', boxSizing: 'border-box' }}>
       {/* ✅ 7. 快照 + 新增配置圖 同列 */}
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={onSnapshot} disabled={isSnapshotting} style={{
@@ -925,7 +932,7 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
               })}
             </div>
             <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={snapshotData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <AreaChart data={snapshotData} margin={{ top: 5, right: 16, left: 0, bottom: 0 }}>
                 <defs>
                   {TREND_LINES.map(line => (
                     <linearGradient key={line.key} id={`grad_${line.key}`} x1="0" y1="0" x2="0" y2="1">
@@ -936,7 +943,7 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
                 <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `${(v / 10000).toFixed(0)}萬`} />
+                <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} width={42} tickFormatter={v => `${(v / 10000).toFixed(0)}萬`} />
                 <Tooltip content={<ChartTooltip prefix={curSym} />} />
                 {TREND_LINES.filter(l => visibleLines.has(l.key)).map(line => (
                   <Area key={line.key} type="monotone" dataKey={line.key} name={line.label}
@@ -955,7 +962,7 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
       <Section title="📈 各資產 ROI">
         {roiData.length === 0 ? <div className="text-center py-10 text-gray-700 text-xs">尚無可計算資產</div> : (
           <ResponsiveContainer width="100%" height={roiData.length * 36 + 20}>
-            <BarChart data={roiData} layout="vertical" margin={{ top: 0, right: 14, left: 0, bottom: 0 }} barSize={10}>
+            <BarChart data={roiData} layout="vertical" margin={{ top: 0, right: 16, left: 0, bottom: 0 }} barSize={10}>
               <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `${v.toFixed(0)}%`} domain={['dataMin - 5', 'dataMax + 5']} />
               <YAxis type="category" dataKey="name" tick={{ fill: '#9ca3af', fontSize: 11 }} tickLine={false} axisLine={false} width={75} />
               <Tooltip formatter={(v, n, props) => [`${v.toFixed(2)}% (${props?.payload?.costCur ?? ''})`, 'ROI']}
@@ -970,10 +977,10 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
       <Section title="💰 月已實現盈虧">
         {pnlByMonth.length === 0 ? <div className="text-center py-10 text-gray-700 text-xs">尚無已實現盈虧記錄</div> : (
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={pnlByMonth} margin={{ top: 5, right: 5, left: -20, bottom: 0 }} barGap={4}>
+            <BarChart data={pnlByMonth} margin={{ top: 5, right: 16, left: 0, bottom: 0 }} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
               <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} width={36} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip content={<ChartTooltip prefix={curSym} />} />
               <Bar dataKey="加密" fill="#6366f1" radius={[4, 4, 0, 0]} fillOpacity={0.85} />
               <Bar dataKey="股票" fill="#3b82f6" radius={[4, 4, 0, 0]} fillOpacity={0.85} />
@@ -1021,9 +1028,9 @@ function PnlPage({ realizedPnl, onDelete, displayCurrency, onAddNew }) {
   const isOverallGain = total >= 0;
 
   return (
-    <div className="space-y-5">
-      {/* ✅ 8. 緊湊版總覽 */}
-      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, width: '100%', boxSizing: 'border-box' }}>
+      {/* 緊湊版總覽 */}
+      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '16px', width: '100%', boxSizing: 'border-box' }}>
         <p style={{ fontSize: 10, fontWeight: 900, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 12 }}>已實現損益總覽</p>
         {/* 累計損益 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -1076,26 +1083,26 @@ function PnlPage({ realizedPnl, onDelete, displayCurrency, onAddNew }) {
                       {monthTotal >= 0 ? '+' : ''}{curSym}{fmt(monthTotal)}
                     </span>
                   </div>
-                  {/* ✅ 6. 2欄 inline style */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {/* 2欄 inline style */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', boxSizing: 'border-box' }}>
                     {records.map((r, idx) => {
                       const isGain = r.amount >= 0;
                       const cfg = getTypeCfg(r.asset_type);
                       const amountColor = isGain ? '#10b981' : '#f43f5e';
                       return (
                         <motion.div key={r.id} initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.03 }}
-                          style={{ background: '#111', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1rem', padding: '12px', display: 'flex', flexDirection: 'column' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: cfg.color, display: 'inline-block' }} />
-                            <span style={{ fontSize: 10, color: amountColor }}>{isGain ? '▲' : '▼'}</span>
+                          style={{ background: '#111', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1rem', padding: '14px 12px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', minWidth: 0, overflow: 'hidden' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: cfg.color, display: 'inline-block' }} />
+                            <span style={{ fontSize: 11, color: amountColor }}>{isGain ? '▲' : '▼'}</span>
                           </div>
-                          <p style={{ fontSize: 12, fontWeight: 700, lineHeight: 1.3, marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{r.name}</p>
-                          <p style={{ fontSize: 10, color: '#4b5563', marginBottom: 6, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{r.trade_date} · {cfg.label}</p>
-                          {r.note && <p style={{ fontSize: 10, color: '#6b7280', marginBottom: 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{r.note}</p>}
+                          <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.3, marginBottom: 3, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' }}>{r.name}</p>
+                          <p style={{ fontSize: 11, color: '#4b5563', marginBottom: 6, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' }}>{r.trade_date} · {cfg.label}</p>
+                          {r.note && <p style={{ fontSize: 10, color: '#6b7280', marginBottom: 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', width: '100%' }}>{r.note}</p>}
                           <div style={{ flex: 1 }} />
                           <div style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.04)', margin: '6px 0' }} />
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
-                            <p style={{ fontSize: 12, fontWeight: 700, color: amountColor, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                            <p style={{ fontSize: 14, fontWeight: 700, color: amountColor, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                               {isGain ? '+' : ''}{curSym}{fmt(r.amount)}
                             </p>
                             <button onClick={() => onDelete(r)} style={{ flexShrink: 0, padding: 4, borderRadius: '50%', background: 'none', border: 'none', color: '#374151', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -1391,78 +1398,82 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-indigo-500/30">
+    <div style={{ minHeight: '100vh', backgroundColor: '#050505', color: '#fff', fontFamily: 'sans-serif', overflowX: 'hidden' }}>
 
-      {/* ✅ 1. 第一列 — 隨頁滾動，safe-area-inset */}
-      <div className="max-w-xl mx-auto px-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex bg-[#181818] rounded-full p-1 border border-white/5">
-            {['TWD', 'USD'].map(c => (
-              <button key={c} onClick={() => setDisplayCurrency(c)}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${displayCurrency === c ? 'bg-white text-black' : 'text-gray-500 hover:text-gray-300'}`}>
-                {c}
-              </button>
-            ))}
-          </div>
-
-          {/* ✅ 2. 匯率 + 時間同一列 */}
-          {rateDisplayStr && (
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-gray-600 truncate">{rateDisplayStr}</p>
-            </div>
-          )}
-
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <button onClick={handleExportCSV} title="匯出 CSV"
-              className="p-2.5 rounded-full text-gray-500 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all">
-              <Download size={17} />
-            </button>
-            <button onClick={() => { fetchAll(); fetchExchangeRates(); }}
-              className={`p-2.5 rounded-full text-gray-500 hover:text-white hover:bg-white/5 transition-all ${isRefreshing ? 'animate-spin' : ''}`}>
-              <RefreshCw size={17} />
-            </button>
-            <button onClick={async () => { await supabase.auth.signOut(); }}
-              className="p-2.5 rounded-full text-gray-500 hover:text-rose-400 hover:bg-rose-500/5 transition-all">
-              <LogOut size={17} />
-            </button>
+      {/* ══ FIXED TAB BAR ══ */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        paddingTop: 'env(safe-area-inset-top)',
+        backgroundColor: '#050505',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+      }}>
+        <div style={{ maxWidth: '36rem', margin: '0 auto', padding: '8px 16px' }}>
+          <div style={{ display: 'flex', backgroundColor: '#141414', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: 4 }}>
+            {[
+              { id: 'home',   icon: LayoutDashboard, label: '總覽' },
+              { id: 'charts', icon: BarChart2,        label: '圖表' },
+              { id: 'pnl',    icon: DollarSign,       label: '盈虧' },
+            ].map(tab => {
+              const Icon = tab.icon;
+              const active = activePage === tab.id;
+              return (
+                <button key={tab.id} onClick={() => setActivePage(tab.id)} style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  padding: '10px 0', borderRadius: '0.875rem', fontSize: 13, fontWeight: 700,
+                  backgroundColor: active ? '#fff' : 'transparent',
+                  color: active ? '#000' : '#6b7280',
+                  border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+                }}>
+                  <Icon size={15} strokeWidth={active ? 2.5 : 2} />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* ✅ 3. Tab 列 sticky */}
-      <div className="sticky top-0 z-50 max-w-xl mx-auto px-5"
-        style={{ background: 'linear-gradient(to bottom, #050505 80%, transparent)', paddingBottom: 8 }}>
-        <div className="flex bg-[#141414] border border-white/8 rounded-[1.25rem] p-1">
-          {[
-            { id: 'home',   icon: LayoutDashboard, label: '總覽' },
-            { id: 'charts', icon: BarChart2,        label: '圖表' },
-            { id: 'pnl',    icon: DollarSign,       label: '盈虧' },
-          ].map(tab => {
-            const Icon = tab.icon;
-            const active = activePage === tab.id;
-            return (
-              <button key={tab.id} onClick={() => setActivePage(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all
-                  ${active ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>
-                <Icon size={14} strokeWidth={active ? 2.5 : 2} />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <main className="max-w-xl mx-auto px-5 pb-12">
+      {/* ══ SCROLLABLE CONTENT ══ */}
+      <main style={{
+        maxWidth: '36rem', margin: '0 auto',
+        padding: '0 16px 48px',
+        paddingTop: 'calc(env(safe-area-inset-top) + 76px)',
+        boxSizing: 'border-box',
+        width: '100%',
+      }}>
         {activePage === 'home' && (
           <>
-            <section className="py-4 flex flex-col items-center">
-              <div className="relative mb-4">
+            {/* 工具列：隨頁捲動消失 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, marginTop: 4 }}>
+              <div style={{ display: 'flex', backgroundColor: '#181818', borderRadius: 999, padding: 3, border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
+                {['TWD', 'USD'].map(c => (
+                  <button key={c} onClick={() => setDisplayCurrency(c)} style={{
+                    padding: '5px 14px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                    backgroundColor: displayCurrency === c ? '#fff' : 'transparent',
+                    color: displayCurrency === c ? '#000' : '#6b7280',
+                    border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+                  }}>{c}</button>
+                ))}
+              </div>
+              {rateDisplayStr && (
+                <p style={{ flex: 1, fontSize: 10, color: '#4b5563', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{rateDisplayStr}</p>
+              )}
+              <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+                <button onClick={handleExportCSV} title="匯出 CSV" style={{ padding: 8, borderRadius: 999, background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}><Download size={16} /></button>
+                <button onClick={() => { fetchAll(); fetchExchangeRates(); }} style={{ padding: 8, borderRadius: 999, background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}><RefreshCw size={16} /></button>
+                <button onClick={async () => { await supabase.auth.signOut(); }} style={{ padding: 8, borderRadius: 999, background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}><LogOut size={16} /></button>
+              </div>
+            </div>
+
+            <section style={{ paddingBottom: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {/* 圓餅圖 — 置中 */}
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
                 <DonutChart segments={donutSegs} size={210} strokeWidth={30}
                   net={stats.net} curSym={curSym} roi={stats.roi} profit={stats.profit} stats={stats} />
               </div>
 
-              {/* ✅ 4. 類別佔比 — 水平單列卡片 */}
-              <div style={{ display: 'flex', gap: 6, width: '100%', overflowX: 'auto', paddingBottom: 2 }}>
+              {/* 類別卡片 — 4等分 grid，不 overflow */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, width: '100%', boxSizing: 'border-box' }}>
                 {[
                   { type: 'crypto',    label: '加密', value: stats.crypto,    color: '#FFA500' },
                   { type: 'stock',     label: '股票', value: stats.stock,     color: '#3b82f6' },
@@ -1475,17 +1486,17 @@ export default function App() {
                   return (
                     <button key={item.type} onClick={() => setActiveTab(t => t === item.type ? 'all' : item.type)}
                       style={{
-                        flex: '1 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                        padding: '10px 12px', borderRadius: '0.875rem',
+                        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                        padding: '10px 10px', borderRadius: '0.875rem', minWidth: 0,
                         border: `1px solid ${isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.04)'}`,
                         background: isActive ? 'rgba(255,255,255,0.05)' : '#111',
-                        cursor: 'pointer', transition: 'all 0.15s', minWidth: 0,
+                        cursor: 'pointer', transition: 'all 0.15s', boxSizing: 'border-box',
                       }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
                         <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: item.color, flexShrink: 0 }} />
-                        <span style={{ fontSize: 10, color: '#6b7280', whiteSpace: 'nowrap' }}>{item.label}</span>
+                        <span style={{ fontSize: 9, color: '#6b7280', whiteSpace: 'nowrap' }}>{item.label}</span>
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: item.color, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: item.color, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' }}>
                         {item.negative ? '-' : ''}{curSym}{fmt(item.value)}
                       </span>
                       {pct && <span style={{ fontSize: 9, color: '#4b5563', marginTop: 2 }}>{pct}</span>}
@@ -1495,42 +1506,39 @@ export default function App() {
               </div>
             </section>
 
-            {/* ✅ 5. 投資概覽 — 緊湊版 */}
-            <div style={{ marginBottom: 20, background: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '16px' }}>
+            {/* 投資概覽 */}
+            <div style={{ marginBottom: 20, background: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '16px', boxSizing: 'border-box' }}>
               <p style={{ fontSize: 10, fontWeight: 900, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 12 }}>投資概覽</p>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                {/* 左：投入 + 目前 */}
-                <div style={{ flex: 2, background: '#0c0c0c', borderRadius: '0.875rem', padding: '10px 12px' }}>
+                <div style={{ flex: 2, background: '#0c0c0c', borderRadius: '0.875rem', padding: '10px 12px', minWidth: 0, boxSizing: 'border-box' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 10, color: '#4b5563' }}>投入</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', fontVariantNumeric: 'tabular-nums' }}>{curSym}{fmt(stats.invested)}</span>
+                    <span style={{ fontSize: 11, color: '#4b5563' }}>投入</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af', fontVariantNumeric: 'tabular-nums' }}>{curSym}{fmt(stats.invested)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 10, color: '#4b5563' }}>目前</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{curSym}{fmt(stats.pos)}</span>
+                    <span style={{ fontSize: 11, color: '#4b5563' }}>目前</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{curSym}{fmt(stats.pos)}</span>
                   </div>
                 </div>
-                {/* 右：報酬 */}
                 <div style={{
                   flex: 1, background: stats.profit >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(244,63,94,0.08)',
                   border: `1px solid ${stats.profit >= 0 ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)'}`,
-                  borderRadius: '0.875rem', padding: '10px 12px',
+                  borderRadius: '0.875rem', padding: '10px 8px', minWidth: 0, boxSizing: 'border-box',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <span style={{ fontSize: 9, color: '#6b7280', marginBottom: 4 }}>報酬</span>
-                  <span style={{ fontSize: 14, fontWeight: 900, color: stats.profit >= 0 ? '#10b981' : '#f43f5e', fontVariantNumeric: 'tabular-nums' }}>
+                  <span style={{ fontSize: 15, fontWeight: 900, color: stats.profit >= 0 ? '#10b981' : '#f43f5e', fontVariantNumeric: 'tabular-nums' }}>
                     {stats.roi >= 0 ? '+' : ''}{stats.roi.toFixed(1)}%
                   </span>
-                  <span style={{ fontSize: 10, color: stats.profit >= 0 ? '#10b981' : '#f43f5e', fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>
+                  <span style={{ fontSize: 10, color: stats.profit >= 0 ? '#10b981' : '#f43f5e', fontVariantNumeric: 'tabular-nums', marginTop: 2, textAlign: 'center' }}>
                     {stats.profit >= 0 ? '+' : ''}{curSym}{fmt(Math.abs(stats.profit))}
                   </span>
                 </div>
               </div>
-              {/* 進度條 */}
               {stats.invested > 0 && (() => {
                 const pct = Math.min(Math.min(stats.pos / stats.invested, 2) * 50, 100);
                 return (
-                  <div style={{ height: 6, backgroundColor: '#1c1c1c', borderRadius: 999, overflow: 'hidden' }}>
+                  <div style={{ height: 6, backgroundColor: '#1c1c1c', borderRadius: 999, overflow: 'hidden', width: '100%' }}>
                     <div style={{ height: '100%', width: `${pct}%`, backgroundColor: stats.pos >= stats.invested ? '#10b981' : '#f43f5e', borderRadius: 999, transition: 'width 0.8s ease' }} />
                   </div>
                 );
@@ -1542,7 +1550,7 @@ export default function App() {
               <Plus size={17} strokeWidth={2.5} /> 新增資產
             </button>
 
-            {/* Tab 篩選 */}
+            {/* 篩選 tabs */}
             <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               {[{ value: 'all', label: '全部', emoji: '🗂' }, ...ASSET_TYPES].map(t => {
                 const cnt = t.value === 'all' ? assets.length : assets.filter(a => a.type === t.value).length;
@@ -1560,12 +1568,12 @@ export default function App() {
 
             {/* 搜尋 + 排序 */}
             <div className="flex gap-2 mb-5">
-              <div className="flex-1 relative">
+              <div className="flex-1 relative" style={{ minWidth: 0 }}>
                 <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                 <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="搜尋資產名稱或代號…"
                   className="w-full bg-[#111] border border-white/[0.06] rounded-2xl py-2.5 pl-9 pr-4 text-xs text-gray-300 placeholder-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all" />
               </div>
-              <div className="relative">
+              <div className="relative" style={{ flexShrink: 0 }}>
                 <button onClick={() => setShowSortMenu(v => !v)}
                   className="flex items-center gap-1.5 px-3.5 py-2.5 bg-[#111] border border-white/[0.06] rounded-2xl text-xs text-gray-500 hover:text-white transition-all">
                   <ArrowUpDown size={13} />
@@ -1587,7 +1595,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* ✅ 6. 資產卡片 — 2欄 inline style grid */}
+            {/* 資產卡片 2欄 grid */}
             <AnimatePresence mode="wait">
               <motion.div key={activeTab + searchQuery} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.14 }} className="space-y-6">
                 {grouped.map(group => (
@@ -1598,7 +1606,7 @@ export default function App() {
                       <div className="flex-1 h-px bg-white/[0.04]" />
                       <span className="text-[10px] text-gray-700">{group.items.length} 筆</span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', boxSizing: 'border-box' }}>
                       {group.items.map(asset => {
                         const val = getVal(asset);
                         const cfg = getTypeCfg(asset.type);
@@ -1626,19 +1634,19 @@ export default function App() {
                           <motion.button key={asset.id}
                             initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} whileTap={{ scale: 0.96 }}
                             onClick={() => { setEditingAsset(asset); setIsEditOpen(true); }}
-                            style={{ background: '#111', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1rem', padding: '12px', textAlign: 'left', display: 'flex', flexDirection: 'column', width: '100%', cursor: 'pointer', transition: 'border-color 0.15s' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                              <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: cfg.color, display: 'inline-block', flexShrink: 0 }} />
-                              {roi !== null && <span style={{ color: roiColor, fontSize: 10, fontWeight: 900 }}>{roi >= 0 ? '+' : ''}{roi.toFixed(1)}%</span>}
+                            style={{ background: '#111', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1rem', padding: '14px 12px', textAlign: 'left', display: 'flex', flexDirection: 'column', width: '100%', cursor: 'pointer', transition: 'border-color 0.15s', boxSizing: 'border-box', minWidth: 0, overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 9 }}>
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: cfg.color, display: 'inline-block', flexShrink: 0 }} />
+                              {roi !== null && <span style={{ color: roiColor, fontSize: 11, fontWeight: 900 }}>{roi >= 0 ? '+' : ''}{roi.toFixed(1)}%</span>}
                             </div>
-                            <p style={{ fontSize: 12, fontWeight: 700, lineHeight: 1.3, marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '100%' }}>{titleLine}</p>
-                            {amountLine && <p style={{ fontSize: 10, color: '#4b5563', marginBottom: 8, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{amountLine}</p>}
+                            <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.3, marginBottom: 3, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' }}>{titleLine}</p>
+                            {amountLine && <p style={{ fontSize: 11, color: '#4b5563', marginBottom: 9, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' }}>{amountLine}</p>}
                             {isCash && <div style={{ flex: 1 }} />}
                             {isLiability && (
-                              <div style={{ marginTop: 4, marginBottom: 8, width: '100%' }}>
+                              <div style={{ marginTop: 4, marginBottom: 9, width: '100%', boxSizing: 'border-box' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                  <span style={{ fontSize: 9, color: '#4b5563' }}>已還 {(debtProg * 100).toFixed(0)}%</span>
-                                  <span style={{ fontSize: 9, color: '#4b5563' }}>{costCurSym}{fmt(curDebt)}</span>
+                                  <span style={{ fontSize: 10, color: '#4b5563' }}>已還 {(debtProg * 100).toFixed(0)}%</span>
+                                  <span style={{ fontSize: 10, color: '#4b5563' }}>{costCurSym}{fmt(curDebt)}</span>
                                 </div>
                                 <div style={{ height: 4, backgroundColor: '#1c1c1c', borderRadius: 999, overflow: 'hidden', width: '100%' }}>
                                   <div style={{ height: '100%', width: `${debtProg * 100}%`, backgroundColor: debtBarColor, borderRadius: 999, transition: 'width 0.5s ease' }} />
@@ -1646,26 +1654,26 @@ export default function App() {
                               </div>
                             )}
                             {!isLiability && !isCash && (
-                              <div style={{ marginTop: 4, marginBottom: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <div style={{ marginTop: 4, marginBottom: 9, display: 'flex', flexDirection: 'column', gap: 5, width: '100%', boxSizing: 'border-box' }}>
                                 {(asset.cost_basis ?? 0) > 0 && (
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: 9, color: '#374151' }}>買</span>
-                                    <span style={{ fontSize: 10, color: '#6b7280', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>{costCurSym}{fmt(asset.cost_basis, 2)}</span>
+                                    <span style={{ fontSize: 10, color: '#374151', flexShrink: 0 }}>買</span>
+                                    <span style={{ fontSize: 11, color: '#6b7280', fontWeight: 500, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{costCurSym}{fmt(asset.cost_basis, 2)}</span>
                                   </div>
                                 )}
                                 {livePriceDisplay !== null && (
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 4 }}>
-                                    <span style={{ fontSize: 9, color: '#374151', flexShrink: 0 }}>現</span>
+                                    <span style={{ fontSize: 10, color: '#374151', flexShrink: 0 }}>現</span>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
-                                      <span style={{ fontSize: 10, fontWeight: 600, color: '#9ca3af', fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{costCurSym}{fmt(livePriceDisplay, 2)}</span>
-                                      {change24h !== null && <span style={{ fontSize: 9, fontWeight: 700, color: change24h >= 0 ? '#10b981' : '#f43f5e', flexShrink: 0 }}>{change24h >= 0 ? '▲' : '▼'}{Math.abs(change24h).toFixed(1)}%</span>}
+                                      <span style={{ fontSize: 11, fontWeight: 600, color: '#9ca3af', fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{costCurSym}{fmt(livePriceDisplay, 2)}</span>
+                                      {change24h !== null && <span style={{ fontSize: 10, fontWeight: 700, color: change24h >= 0 ? '#10b981' : '#f43f5e', flexShrink: 0 }}>{change24h >= 0 ? '▲' : '▼'}{Math.abs(change24h).toFixed(1)}%</span>}
                                     </div>
                                   </div>
                                 )}
                               </div>
                             )}
-                            <div style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.04)', marginBottom: 8 }} />
-                            <p style={{ fontSize: 13, fontWeight: 700, color: isLiability ? '#f43f5e' : '#fff', fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                            <div style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.04)', marginBottom: 9 }} />
+                            <p style={{ fontSize: 14, fontWeight: 700, color: isLiability ? '#f43f5e' : '#fff', fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' }}>
                               {isLiability ? '-' : ''}{curSym}{fmt(val)}
                             </p>
                           </motion.button>
@@ -1685,7 +1693,7 @@ export default function App() {
         )}
 
         {activePage === 'charts' && (
-          <div className="pt-4">
+          <div style={{ paddingTop: 8, width: '100%', boxSizing: 'border-box' }}>
             <ChartsPage assets={assets} prices={prices} snapshots={snapshots}
               realizedPnl={realizedPnl} displayCurrency={displayCurrency} getVal={getVal}
               customCharts={customCharts} onAddChart={handleAddChart} onDeleteChart={handleDeleteChart}
@@ -1694,7 +1702,7 @@ export default function App() {
         )}
 
         {activePage === 'pnl' && (
-          <div className="pt-4">
+          <div style={{ paddingTop: 8, width: '100%', boxSizing: 'border-box' }}>
             <PnlPage realizedPnl={realizedPnl} onDelete={handleDeletePnl}
               displayCurrency={displayCurrency} onAddNew={() => setIsPnlOpen(true)} />
           </div>
