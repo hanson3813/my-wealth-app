@@ -275,52 +275,45 @@ function DonutChart({ segments, size = 210, strokeWidth = 24, net, curSym, roi, 
 const RADIAN = Math.PI / 180;
 function renderCustomLabel({ cx, cy, midAngle, outerRadius, name, percent }) {
   if (percent < 0.04) return null;
-  const radius = outerRadius + 38;
+  const radius = outerRadius + 28;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  const lx1 = cx + (outerRadius + 5) * Math.cos(-midAngle * RADIAN);
-  const ly1 = cy + (outerRadius + 5) * Math.sin(-midAngle * RADIAN);
-  const lx2 = cx + (outerRadius + 26) * Math.cos(-midAngle * RADIAN);
-  const ly2 = cy + (outerRadius + 26) * Math.sin(-midAngle * RADIAN);
+  const lx1 = cx + (outerRadius + 6) * Math.cos(-midAngle * RADIAN);
+  const ly1 = cy + (outerRadius + 6) * Math.sin(-midAngle * RADIAN);
+  const lx2 = cx + (outerRadius + 20) * Math.cos(-midAngle * RADIAN);
+  const ly2 = cy + (outerRadius + 20) * Math.sin(-midAngle * RADIAN);
   const anchor = x > cx ? 'start' : 'end';
   return (
     <g>
-      <line x1={lx1} y1={ly1} x2={lx2} y2={ly2} stroke="#555" strokeWidth={1.5} />
-      <text x={x} y={y - 5} textAnchor={anchor} fill="#d1d5db" fontSize={12} fontWeight="700">{name.length > 6 ? name.slice(0, 6) + "…" : name}</text>
-      <text x={x} y={y + 9} textAnchor={anchor} fill="#9ca3af" fontSize={11}>{(percent * 100).toFixed(1)}%</text>
+      <line x1={lx1} y1={ly1} x2={lx2} y2={ly2} stroke="#555" strokeWidth={2} />
+      <text x={x} y={y - 5} textAnchor={anchor} fill="#d1d5db" fontSize={12} fontWeight="700">{name.length > 8 ? name.slice(0, 8) + '…' : name}</text>
+      <text x={x} y={y + 8} textAnchor={anchor} fill="#9ca3af" fontSize={12}>{(percent * 100).toFixed(1)}%</text>
     </g>
   );
 }
 
-function LabeledPieChart({ data, netWorth, curSym, centerLabel = '淨資產' }) {
-  if (!data?.length) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#374151', fontSize: 12 }}>尚無資產</div>;
-  const H = 340;
+function LabeledPieChart({ data, size = 280, netWorth, curSym, centerLabel = '淨資產' }) {
+  if (!data?.length) return <div className="text-center py-10 text-gray-700 text-xs">尚無資產</div>;
   return (
-    <div style={{
-      width: '100vw',
-      marginLeft: 'calc(-50vw + 50%)',
-      height: H,
-      overflow: 'hidden',
-    }}>
-      <ResponsiveContainer width="100%" height={H}>
-        <PieChart margin={{ top: 44, right: 64, bottom: 44, left: 64 }}>
-          <Pie data={data} cx="50%" cy="50%" innerRadius={88} outerRadius={118}
-            dataKey="value" paddingAngle={2} labelLine={false} label={renderCustomLabel} strokeWidth={0}>
-            {data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-          </Pie>
-          <Tooltip contentStyle={{ background: '#fff', border: 'none', borderRadius: '0.75rem', fontSize: 12, color: '#111', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', padding: '8px 14px' }}
-            itemStyle={{ color: "#111", fontWeight: 700 }} formatter={(v, n) => [fmt(v), n]} />
-          {netWorth !== undefined && (
-            <>
-              <text x="50%" y="46%" fill="#d3d3d3" textAnchor="middle" dominantBaseline="middle" fontSize={13} fontWeight={900} letterSpacing={1}>{centerLabel}</text>
-              <text x="50%" y="56%" fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize={17} fontWeight={700}>{curSym}{fmt(netWorth)}</text>
-            </>
-          )}
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height={size}>
+      <PieChart margin={{ top: 24, right: 40, bottom: 24, left: 40 }}>
+        <Pie data={data} cx="50%" cy="50%" innerRadius={size * 0.23} outerRadius={size * 0.32}
+          dataKey="value" paddingAngle={2} labelLine={false} label={renderCustomLabel} strokeWidth={0}>
+          {data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+        </Pie>
+        <Tooltip contentStyle={{ background: '#fff', border: 'none', borderRadius: '0.75rem', fontSize: 12, color: '#111', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', padding: '8px 14px' }}
+          itemStyle={{ color: '#111', fontWeight: 700 }} formatter={(v, n) => [fmt(v), n]} />
+        {netWorth !== undefined && (
+          <>
+            <text x="50%" y="45%" fill="#d3d3d3" textAnchor="middle" dominantBaseline="middle" fontSize={14} fontWeight={900} letterSpacing={1}>{centerLabel}</text>
+            <text x="50%" y="55%" fill="#fff" textAnchor="middle" dominantBaseline="middle" fontSize={16} fontWeight={700}>{curSym}{fmt(netWorth)}</text>
+          </>
+        )}
+      </PieChart>
+    </ResponsiveContainer>
   );
 }
+
 // ═══════════════════════════════════════════════════════════════════
 // ChartTooltip
 // ═══════════════════════════════════════════════════════════════════
@@ -804,11 +797,10 @@ const RealizedPnlModal = React.memo(({ isOpen, onClose, onSave, displayCurrency 
 // ChartsPage — ✅ 7. 快照+配置圖同列  ✅ 9. 多線走勢圖 + toggle
 // ═══════════════════════════════════════════════════════════════════
 function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, getVal,
-  customCharts, onAddChart, onDeleteChart, onSnapshot, isSnapshotting, onDeleteSnapshot }) {
+  customCharts, onAddChart, onDeleteChart, onSnapshot, isSnapshotting }) {
   const curSym = displayCurrency === 'TWD' ? 'NT$' : '$';
   const [isAddChartOpen, setIsAddChartOpen] = useState(false);
   const [visibleLines, setVisibleLines] = useState(new Set(TREND_LINES.map(l => l.key)));
-  const [editSnapshots, setEditSnapshots] = useState(false);
 
   const toggleLine = (key) => {
     setVisibleLines(prev => {
@@ -873,8 +865,8 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
   }, [assets, getVal]);
 
   const Section = ({ title, children, onDelete, action }) => (
-    <div style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '16px', width: '100%', boxSizing: 'border-box' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+    <div style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '20px 80px', width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0, marginTop: -25 }}>
         <p style={{ fontSize: 14, fontWeight: 900, color: '#bac4db', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{title}</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {action}
@@ -920,34 +912,7 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
           </div>
         ) : (
           <>
-                        {/* 快照管理列 */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              {lastSnapshot && <p style={{ fontSize: 10, color: '#4b5563', margin: 0 }}>最新：{lastSnapshot}</p>}
-              <button onClick={() => setEditSnapshots(v => !v)} style={{
-                display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999,
-                fontSize: 11, fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)',
-                background: editSnapshots ? 'rgba(244,63,94,0.1)' : 'transparent',
-                color: editSnapshots ? '#f43f5e' : '#6b7280', cursor: 'pointer',
-              }}>
-                <Trash2 size={11} /> {editSnapshots ? '完成' : '管理快照'}
-              </button>
-            </div>
-            {editSnapshots && (
-              <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 160, overflowY: 'auto' }}>
-                {(snapshots ?? []).slice().sort((a, b) => b.snapshot_date.localeCompare(a.snapshot_date)).map(s => (
-                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: '#0c0c0c', borderRadius: 10 }}>
-                    <span style={{ fontSize: 12, color: '#9ca3af' }}>{s.snapshot_date}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 11, color: '#6b7280' }}>淨資產 {((s.net_worth ?? 0) / 10000).toFixed(1)}萬</span>
-                      <button onClick={() => onDeleteSnapshot && onDeleteSnapshot(s.id)} style={{ padding: 4, borderRadius: '50%', background: 'none', border: 'none', color: '#4b5563', cursor: 'pointer', display: 'flex' }}
-                        onMouseEnter={e => e.currentTarget.style.color='#f43f5e'} onMouseLeave={e => e.currentTarget.style.color='#4b5563'}>
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            {lastSnapshot && <p className="text-[10px] text-gray-700 mb-2 text-right">最新快照：{lastSnapshot}</p>}
             {/* ✅ 9. Toggle chips */}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
               {TREND_LINES.map(line => {
@@ -991,7 +956,7 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
       </Section>
 
       <Section title="🥧 整體資產配置">
-        <LabeledPieChart data={overallPieData} netWorth={netWorth} curSym={curSym} centerLabel="淨資產" />
+        <LabeledPieChart data={overallPieData} size={400} netWorth={netWorth} curSym={curSym} centerLabel="淨資產" />
       </Section>
 
       <Section title="📈 各資產 ROI">
@@ -1038,7 +1003,7 @@ function ChartsPage({ assets, prices, snapshots, realizedPnl, displayCurrency, g
                 <span className="text-[10px] text-rose-400 font-bold">負債比 {total > 0 ? ((totalLiab / total) * 100).toFixed(1) : 0}%</span>
               </div>
             )}
-            <LabeledPieChart data={pieData} netWorth={total} curSym={curSym} centerLabel={hasLiability ? '總計（含負債）' : '總價值'} />
+            <LabeledPieChart data={pieData} size={300} netWorth={total} curSym={curSym} centerLabel={hasLiability ? '總計（含負債）' : '總價值'} />
           </Section>
         );
       })}
@@ -1126,7 +1091,7 @@ function PnlPage({ realizedPnl, onDelete, displayCurrency, onAddNew }) {
                       const amountColor = isGain ? '#10b981' : '#f43f5e';
                       return (
                         <motion.div key={r.id} initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.03 }}
-                          style={{ background: '#111', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1rem', padding: '14px 12px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', minWidth: 0, overflow: 'hidden' }}>
+                          style={{ background: '#111', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1rem', padding: '14px 32px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', minWidth: 0, overflow: 'hidden' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                             <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: cfg.color, display: 'inline-block' }} />
                             <span style={{ fontSize: 13, color: amountColor }}>{isGain ? '▲' : '▼'}</span>
@@ -1361,13 +1326,6 @@ export default function App() {
     const { data: p } = await supabase.from('realized_pnl').select('*').order('trade_date', { ascending: false });
     if (p) setRealizedPnl(p);
   };
-  const handleDeleteSnapshot = async (id) => {
-    if (!window.confirm('確定刪除這筆快照資料？')) return;
-    await supabase.from('asset_snapshots').delete().eq('id', id);
-    const { data: s } = await supabase.from('asset_snapshots').select('*').order('snapshot_date');
-    if (s) setSnapshots(s);
-  };
-
   const handleAddChart = async (def) => {
     await supabase.from('custom_charts').insert([{ user_id: user.id, title: def.title, asset_ids: def.asset_ids }]);
     const { data: c } = await supabase.from('custom_charts').select('*').order('created_at');
@@ -1477,14 +1435,14 @@ export default function App() {
 
       {/* ══ SCROLLABLE CONTENT ══ */}
       <main style={{
-        width: '100%',
+        maxWidth: '36rem', margin: '0 auto',
         padding: '0 16px 48px',
         paddingTop: 'calc(env(safe-area-inset-top) + 76px)',
         boxSizing: 'border-box',
+        width: '100%',
       }}>
         {activePage === 'home' && (
           <>
-            <div style={{ maxWidth: '36rem', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
             {/* 工具列：隨頁捲動消失 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, marginTop: 4 }}>
               <div style={{ display: 'flex', backgroundColor: '#181818', borderRadius: 999, padding: 3, border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
@@ -1731,21 +1689,20 @@ export default function App() {
                 )}
               </motion.div>
             </AnimatePresence>
-            </div>{/* end home maxWidth wrapper */}
           </>
         )}
 
         {activePage === 'charts' && (
-          <div style={{ maxWidth: '36rem', margin: '0 auto', paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
             <ChartsPage assets={assets} prices={prices} snapshots={snapshots}
               realizedPnl={realizedPnl} displayCurrency={displayCurrency} getVal={getVal}
               customCharts={customCharts} onAddChart={handleAddChart} onDeleteChart={handleDeleteChart}
-              onSnapshot={handleManualSnapshot} isSnapshotting={isSnapshotting} onDeleteSnapshot={handleDeleteSnapshot} />
+              onSnapshot={handleManualSnapshot} isSnapshotting={isSnapshotting} />
           </div>
         )}
 
         {activePage === 'pnl' && (
-          <div style={{ maxWidth: '36rem', margin: '0 auto', paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
             <PnlPage realizedPnl={realizedPnl} onDelete={handleDeletePnl}
               displayCurrency={displayCurrency} onAddNew={() => setIsPnlOpen(true)} />
           </div>

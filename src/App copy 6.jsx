@@ -1477,14 +1477,14 @@ export default function App() {
 
       {/* ══ SCROLLABLE CONTENT ══ */}
       <main style={{
-        width: '100%',
+        maxWidth: '36rem', margin: '0 auto',
         padding: '0 16px 48px',
         paddingTop: 'calc(env(safe-area-inset-top) + 76px)',
         boxSizing: 'border-box',
+        width: '100%',
       }}>
         {activePage === 'home' && (
           <>
-            <div style={{ maxWidth: '36rem', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
             {/* 工具列：隨頁捲動消失 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, marginTop: 4 }}>
               <div style={{ display: 'flex', backgroundColor: '#181818', borderRadius: 999, padding: 3, border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
@@ -1731,12 +1731,11 @@ export default function App() {
                 )}
               </motion.div>
             </AnimatePresence>
-            </div>{/* end home maxWidth wrapper */}
           </>
         )}
 
         {activePage === 'charts' && (
-          <div style={{ maxWidth: '36rem', margin: '0 auto', paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
             <ChartsPage assets={assets} prices={prices} snapshots={snapshots}
               realizedPnl={realizedPnl} displayCurrency={displayCurrency} getVal={getVal}
               customCharts={customCharts} onAddChart={handleAddChart} onDeleteChart={handleDeleteChart}
@@ -1745,7 +1744,7 @@ export default function App() {
         )}
 
         {activePage === 'pnl' && (
-          <div style={{ maxWidth: '36rem', margin: '0 auto', paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
             <PnlPage realizedPnl={realizedPnl} onDelete={handleDeletePnl}
               displayCurrency={displayCurrency} onAddNew={() => setIsPnlOpen(true)} />
           </div>
