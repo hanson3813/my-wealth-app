@@ -248,7 +248,9 @@ function DonutChart({ segments, size = 210, strokeWidth = 24, net, curSym, roi, 
           const cfg = ASSET_TYPES.find(t => t.value === activeSegment.label);
           const value = stats?.[activeSegment.label] ?? 0;
           return (
-            <div key={activeSegment.label}
+            <motion.div key={activeSegment.label}
+              initial={{ opacity: 0, y: 6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: 0.96 }} transition={{ duration: 0.15 }}
               style={{ position: 'absolute', bottom: -8, left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
               <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', padding: '12px 20px', minWidth: 180, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', textAlign: 'center' }}>
                 <button onClick={() => setActiveSegment(null)} style={{ position: 'absolute', top: 8, right: 10, background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: 14 }}>✕</button>
@@ -259,7 +261,7 @@ function DonutChart({ segments, size = 210, strokeWidth = 24, net, curSym, roi, 
                 <div style={{ color: '#fff', fontSize: 20, fontWeight: 700 }}>{curSym}{fmt(value)}</div>
                 <div style={{ color: activeSegment.color, fontSize: 12, fontWeight: 600, marginTop: 2 }}>{activeSegment.pct.toFixed(1)}% 佔比</div>
               </div>
-            </div>
+            </motion.div>
           );
         })()}
       </AnimatePresence>
@@ -303,7 +305,7 @@ function LabeledPieChart({ data, netWorth, curSym, centerLabel = '淨資產' }) 
       <ResponsiveContainer width="100%" height={H}>
         <PieChart margin={{ top: 44, right: 64, bottom: 44, left: 64 }}>
           <Pie data={data} cx="50%" cy="50%" innerRadius={88} outerRadius={118}
-            dataKey="value" paddingAngle={2} labelLine={false} label={renderCustomLabel} strokeWidth={0} isAnimationActive={false}>
+            dataKey="value" paddingAngle={2} labelLine={false} label={renderCustomLabel} strokeWidth={0}>
             {data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
           </Pie>
           <Tooltip contentStyle={{ background: '#fff', border: 'none', borderRadius: '0.75rem', fontSize: 12, color: '#111', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', padding: '8px 14px' }}
@@ -1063,10 +1065,10 @@ function PnlPage({ realizedPnl, onDelete, displayCurrency, onAddNew }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', boxSizing: 'border-box' }}>
       {/* 緊湊版總覽 */}
-      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '8px 80px', width: '100%', boxSizing: 'border-box' }}>
-        <p style={{ fontSize: 14, fontWeight: 900, color: '#b8c4da', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8, marginLeft: -70 }}>已實現損益總覽</p>
+      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '8px', width: '100%', boxSizing: 'border-box' }}>
+        <p style={{ fontSize: 14, fontWeight: 900, color: '#b8c4da', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>已實現損益總覽</p>
         {/* 累計損益 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, marginLeft: -70 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 32, height: 32, borderRadius: '0.625rem', flexShrink: 0, backgroundColor: isOverallGain ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {isOverallGain ? <TrendingUp size={16} style={{ color: '#10b981' }} /> : <TrendingDown size={16} style={{ color: '#f43f5e' }} />}
@@ -1078,7 +1080,7 @@ function PnlPage({ realizedPnl, onDelete, displayCurrency, onAddNew }) {
           </span>
         </div>
         {/* 加密 / 股票 同列 */}
-        <div style={{ display: 'flex', gap: 8, marginLeft: -70 }}>
+        <div style={{ display: 'flex', gap: 8 }}>
           {[{ label: '🪙 加密', value: totalCrypto }, { label: '📈 股票', value: totalStock }].map((item, i) => (
             <div key={i} style={{ flex: 1, background: '#0c0c0c', borderRadius: '0.875rem', padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 13, color: '#aabdd6' }}>{item.label}</span>
@@ -1447,7 +1449,7 @@ export default function App() {
         backgroundColor: '#050505',
         borderBottom: '1px solid rgba(255,255,255,0.05)',
       }}>
-        <div style={{ maxWidth: '480px', margin: '0 auto', padding: '8px 16px' }}>
+        <div style={{ maxWidth: '36rem', margin: '0 auto', padding: '8px 16px' }}>
           <div style={{ display: 'flex', backgroundColor: '#141414', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: 2 }}>
             {[
               { id: 'home',   icon: LayoutDashboard, label: '總覽' },
@@ -1475,16 +1477,14 @@ export default function App() {
 
       {/* ══ SCROLLABLE CONTENT ══ */}
       <main style={{
-        maxWidth: '480px',
-        margin: '0 auto',
         width: '100%',
+        padding: '0 16px 48px',
         paddingTop: 'calc(env(safe-area-inset-top) + 76px)',
-        paddingBottom: 48,
         boxSizing: 'border-box',
       }}>
         {activePage === 'home' && (
           <>
-            <div style={{ width: '100%', padding: '0 16px', boxSizing: 'border-box' }}>
+            <div style={{ maxWidth: '36rem', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
             {/* 工具列：隨頁捲動消失 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, marginTop: 4 }}>
               <div style={{ display: 'flex', backgroundColor: '#181818', borderRadius: 999, padding: 3, border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
@@ -1736,7 +1736,7 @@ export default function App() {
         )}
 
         {activePage === 'charts' && (
-          <div style={{ width: '100%', padding: '4px 16px 0', boxSizing: 'border-box' }}>
+          <div style={{ maxWidth: '36rem', margin: '0 auto', paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
             <ChartsPage assets={assets} prices={prices} snapshots={snapshots}
               realizedPnl={realizedPnl} displayCurrency={displayCurrency} getVal={getVal}
               customCharts={customCharts} onAddChart={handleAddChart} onDeleteChart={handleDeleteChart}
@@ -1745,7 +1745,7 @@ export default function App() {
         )}
 
         {activePage === 'pnl' && (
-          <div style={{ width: '100%', padding: '4px 16px 0', boxSizing: 'border-box' }}>
+          <div style={{ maxWidth: '36rem', margin: '0 auto', paddingTop: 4, width: '100%', boxSizing: 'border-box' }}>
             <PnlPage realizedPnl={realizedPnl} onDelete={handleDeletePnl}
               displayCurrency={displayCurrency} onAddNew={() => setIsPnlOpen(true)} />
           </div>
