@@ -1475,12 +1475,13 @@ export default function App() {
 
       {/* ══ SCROLLABLE CONTENT ══ */}
       <main style={{
-        maxWidth: '480px',
+        maxWidth: '420px',
         margin: '0 auto',
         width: '100%',
         paddingTop: 'calc(env(safe-area-inset-top) + 76px)',
         paddingBottom: 48,
         boxSizing: 'border-box',
+        marginLeft: -10
       }}>
         {activePage === 'home' && (
           <>
@@ -1515,7 +1516,7 @@ export default function App() {
               </div>
 
               {/* 類別卡片 — 2等分 grid，不 overflow */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3, width: '100%', boxSizing: 'border-box' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3, width: '100%', boxSizing: 'border-box'}}>
                 {[
                   { type: 'crypto',    label: '加密', value: stats.crypto,    color: '#FFA500' },
                   { type: 'stock',     label: '股票', value: stats.stock,     color: '#3b82f6' },
